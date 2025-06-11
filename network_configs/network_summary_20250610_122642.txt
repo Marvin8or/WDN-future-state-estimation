@@ -1,0 +1,47 @@
+Network Configuration Summary
+==================================================
+
+
+Network: Net1
+------------------------------
+Junctions: 9
+Reservoirs: 1
+Tanks: 1
+Pipes: 12
+Pumps: 1
+Valves: 0
+Total components: 24
+
+
+Network: Net2
+------------------------------
+Junctions: 35
+Reservoirs: 0
+Tanks: 1
+Pipes: 40
+Pumps: 0
+Valves: 0
+Total components: 76
+
+
+Network: Net3
+------------------------------
+Junctions: 92
+Reservoirs: 2
+Tanks: 3
+Pipes: 117
+Pumps: 2
+Valves: 0
+Total components: 216
+
+
+Network: Net6
+------------------------------
+Junctions: 3323
+Reservoirs: 1
+Tanks: 32
+Pipes: 3829
+Pumps: 61
+Valves: 2
+Total components: 7248
+

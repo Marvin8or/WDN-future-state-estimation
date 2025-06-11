@@ -1,0 +1,159 @@
+Pipes Configuration for Net1
+==================================================
+
+Component ID: 10
+------------------------------
+type: Pipe
+start_node: 10
+end_node: 11
+length: 3209.5440000000003
+diameter: 0.4572
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 11
+------------------------------
+type: Pipe
+start_node: 11
+end_node: 12
+length: 1609.344
+diameter: 0.35559999999999997
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 12
+------------------------------
+type: Pipe
+start_node: 12
+end_node: 13
+length: 1609.344
+diameter: 0.254
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 21
+------------------------------
+type: Pipe
+start_node: 21
+end_node: 22
+length: 1609.344
+diameter: 0.254
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 22
+------------------------------
+type: Pipe
+start_node: 22
+end_node: 23
+length: 1609.344
+diameter: 0.30479999999999996
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 31
+------------------------------
+type: Pipe
+start_node: 31
+end_node: 32
+length: 1609.344
+diameter: 0.15239999999999998
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 110
+------------------------------
+type: Pipe
+start_node: 2
+end_node: 12
+length: 60.96
+diameter: 0.4572
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 111
+------------------------------
+type: Pipe
+start_node: 11
+end_node: 21
+length: 1609.344
+diameter: 0.254
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 112
+------------------------------
+type: Pipe
+start_node: 12
+end_node: 22
+length: 1609.344
+diameter: 0.30479999999999996
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 113
+------------------------------
+type: Pipe
+start_node: 13
+end_node: 23
+length: 1609.344
+diameter: 0.2032
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 121
+------------------------------
+type: Pipe
+start_node: 21
+end_node: 31
+length: 1609.344
+diameter: 0.2032
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
+Component ID: 122
+------------------------------
+type: Pipe
+start_node: 22
+end_node: 32
+length: 1609.344
+diameter: 0.15239999999999998
+roughness: 100.0
+minor_loss: 0.0
+initial_status: Open
+bulk_coeff: None
+wall_coeff: None
+
