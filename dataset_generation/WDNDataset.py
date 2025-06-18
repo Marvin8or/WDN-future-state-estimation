@@ -20,19 +20,20 @@ from torch_geometric.loader import DataLoader
 
 # Log critical parts of code
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-logging.basicConfig(
-    filename=f"WDNDataset_{timestamp}.log",
-    encoding="utf-8",
-    level=logging.DEBUG,
-)
+# logging.basicConfig(
+#     filename=f"WDNDataset_{timestamp}.log",
+#     encoding="utf-8",
+#     level=logging.DEBUG,
+# )
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 class WDNDataset:
     def __init__(
         self,
         name,
+        logger,
         scenarios_path,
         num_scenarios,
         mean,
@@ -57,13 +58,8 @@ class WDNDataset:
         self.batch_size = batch_size
 
         # Logger Setup
-        self.logger = logging.getLogger(
-            f"{__name__}.{self.__class__.__name__}.{self.name}\n"
-        )
-
-        self.logger.setLevel(logging.DEBUG)
-
-        self.logger.info(f"Class created at: {timestamp}\n")
+        self.logger = logger
+        # self.logger.info(f"Class created at: {timestamp}\n")
         # self.input_data = input_data
         # self.output_data = output_data
 
@@ -252,6 +248,10 @@ class WDNDataset:
             norm_fn == self.nonorm
 
         self._dataset = []
+
+        if num_scenarios > raw_input_node_data.shape[0]:
+            num_scenarios = raw_input_node_data.shape[0]
+
         for sample_idx in range(num_scenarios):
             x = torch.tensor(
                 # Normalize the data
