@@ -14,8 +14,10 @@ inp_file = (
 node_id = "JUNCTION-0"
 
 wn = wntr.network.WaterNetworkModel(inp_file)
+sim = wntr.sim.EpanetSimulator(wn)
+results = sim.run_sim()
 junction = wn.get_node(node_id)
-print(junction.demand_pattern)
+print(results)
 
 
 print(junction.demand_timeseries_list)
