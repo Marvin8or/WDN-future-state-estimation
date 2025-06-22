@@ -4,11 +4,13 @@ Created on Wed Jun 11 11:25:01 2025
 
 @author: gabri
 """
+import os
 import zarr
 import wntr
 import json
 import torch
 import logging
+import warnings
 import numpy as np
 
 from tqdm import tqdm
@@ -17,13 +19,7 @@ from datetime import datetime
 from collections import defaultdict
 
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-logging.basicConfig(
-    filename=f"SceneGenerator_{timestamp}.log",
-    encoding="utf-8",
-    level=logging.DEBUG,
-)
-
-# logger = logging.getLogger(__name__)
+warnings.filterwarnings("ignore")
 
 
 class SceneGenerator:
@@ -33,7 +29,6 @@ class SceneGenerator:
         name,
         inp_file,
         config_file,
-        timestep,
         num_scenarios,
         pipe_open_prob,
         pump_open_prob,
@@ -51,13 +46,20 @@ class SceneGenerator:
         self.name = name
         self.invalid_simulations = 0  # For debugging purposes
         # Logger Setup
+        logging.basicConfig(
+            filename=os.path.join(
+                base_path, f"SceneGenerator_{timestamp}.log"
+            ),
+            encoding="utf-8",
+            level=logging.INFO,
+        )
         self.logger = logging.getLogger(
-            f"{__name__}.{self.__class__.__name__}.{self.name}\n"
+            f"{self.__class__.__name__}.{self.name}"
         )
 
         self.logger.setLevel(logging.DEBUG)
 
-        self.logger.info(f"Class created at: {timestamp}\n")
+        self.logger.info(f"Class created at: {timestamp}")
 
         self.num_scenarios = num_scenarios
 
@@ -102,9 +104,9 @@ class SceneGenerator:
         # Define the Water Network Model
         self.logger.info("Setting up Water Network Model")
         self.wn = wntr.network.WaterNetworkModel(inp_file)
-        self.wn.options.time.duration = timestep
-        self.wn.options.time.hydraulic_timestep = timestep
-        self.wn.options.time.pattern_timestep = timestep
+        self.wn.options.time.duration = 1
+        # self.wn.options.time.hydraulic_timestep = 0
+        # self.wn.options.time.pattern_timestep = 0
         self.wn.options.hydraulic.demand_model = "DD"
 
         # Disable controls
@@ -417,14 +419,12 @@ class SceneGenerator:
         self.wn.reset_initial_values()
         return results_output
 
-    def _generate_one_sample(self, tmp_scene_id):
+    def _generate_one_sample(self, scene_id):
         """
         Generate one input -> output sample
         """
         # Generate the napshots
-        results_input, input_values = self.generate_input_snapshot(
-            tmp_scene_id
-        )
+        results_input, input_values = self.generate_input_snapshot(scene_id)
         results_output = self.generate_output_snapshot(input_values)
 
         # Gather Node features for single snapshot
@@ -501,8 +501,14 @@ class SceneGenerator:
                 output_edge_features,
             ) = self._generate_one_sample(scene_i)
 
+            # self.logger.info(self._input_node_features["pressure"])
+            # self.logger.info(
+            #     input_node_features[self._input_node_features["pressure"]]
+            # )
+
             if np.any(
-                input_node_features[self._input_node_features["pressure"]] < 0
+                input_node_features[:, self._input_node_features["pressure"]]
+                < 0
             ):
                 # print("Resampling scene: ", scene_i)
                 # print("Negative pressure values in input snapshot")
@@ -510,7 +516,8 @@ class SceneGenerator:
                 continue
 
             if np.any(
-                output_node_features[self._input_node_features["pressure"]] < 0
+                output_node_features[:, self._input_node_features["pressure"]]
+                < 0
             ):
                 # print("Resampling scene: ", scene_i)
                 # print("Negative pressure values in output snapshot")
@@ -536,6 +543,6 @@ class SceneGenerator:
 
         pbar.close()
         print(f"Generation completed in {time() - start_time:.2f} seconds")
-        self.logger.debug(
+        self.logger.info(
             f"Number of invalid simulations: {self.invalid_simulations}"
         )

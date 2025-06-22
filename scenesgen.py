@@ -32,12 +32,6 @@ def parse_args():
 
     # Optional arguments with defaults
     parser.add_argument(
-        "--timestep",
-        type=int,
-        default=3600,
-        help="Simulation timestep in seconds",
-    )
-    parser.add_argument(
         "--num_scenarios",
         type=int,
         default=1000,
@@ -134,7 +128,6 @@ def main():
         name=args.name,
         inp_file=args.inp_file,
         config_file=args.config_file,
-        timestep=args.timestep,
         num_scenarios=args.num_scenarios,
         pipe_open_prob=args.pipe_open_prob,
         pump_open_prob=args.pump_open_prob,

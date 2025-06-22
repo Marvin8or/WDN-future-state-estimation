@@ -9,14 +9,15 @@ import os
 import json
 import torch
 import logging
+import inspect
 import argparse
 import matplotlib.pyplot as plt
 
 from tqdm import tqdm
 from datetime import datetime
 from collections import defaultdict
-from dataset_generation import WDNDataset
-from models.model_configuration import select_model
+from dataset_generation.WDNDataset import WDNDataset
+from models import model_configurations, optimizer_configurations
 
 
 def get_arguments():
@@ -67,14 +68,29 @@ def get_arguments():
     )
 
     parser.add_argument(
+        "--optim_config",
+        type=str,
+        required=True,
+        choices=["adam_lr001"],
+        help="Chose pre-configured optimizer",
+    )
+
+    parser.add_argument(
+        "--loss_function",
+        type=str,
+        required=True,
+        default=["MSE"],
+        help="Loss function",
+    )
+
+    parser.add_argument(
         "--batch_size", type=int, default=32, help="Batch size for training"
     )
     parser.add_argument(
         "--keep_elements",
-        type=str,
         nargs="+",
-        default="all",
-        help='Elements to keep ("all" or list of node/link ids)',
+        default=[],
+        help='Elements to keep (["all"] or list of node/link ids)',
     )
     parser.add_argument(
         "--input_data",
@@ -200,11 +216,15 @@ def get_datasets(args, logger):
         output_edge_features=args.output_edge_features,
     )
 
-    return train_dataset, validation_dataset, test_dataset
+    return (
+        train_dataset.generate_DataLoader(),
+        validation_dataset.generate_DataLoader(),
+        test_dataset.generate_DataLoader(),
+    )
 
 
 def train_one_epoch(
-    model, optimizer, loss_func, train_dataset, epoch, num_epochs
+    logger, model, optimizer, loss_func, train_dataset, epoch, num_epochs
 ):
     model.train()
     running_loss = 0
@@ -213,11 +233,12 @@ def train_one_epoch(
         (
             input_node_features,
             input_edge_features,
-            output_node_features,
+            output_features,
             edge_index,
         ) = (sample.x, sample.edge_attrs, sample.y, sample.edge_index)
+        # logger.debug(f"edge_index type: {type(edge_index)}, {edge_index}")
         y_hat = model(input_node_features, input_edge_features, edge_index)
-        loss = loss_func(y_hat, output_node_features)
+        loss = loss_func(y_hat, output_features)
         loss.backward()
         optimizer.step()
         running_loss += loss.item()
@@ -233,11 +254,11 @@ def validate_one_epoch(model, loss_func, validation_dataset):
             (
                 input_node_features,
                 input_edge_features,
-                output_node_features,
+                output_features,
                 edge_index,
             ) = (sample.x, sample.edge_attrs, sample.y, sample.edge_index)
             y_hat = model(input_node_features, input_edge_features, edge_index)
-            loss = loss_func(y_hat, output_node_features)
+            loss = loss_func(y_hat, output_features)
             running_loss += loss.item()
         return running_loss / len(validation_dataset)
 
@@ -252,7 +273,7 @@ def train(args):
     dataset_name = args.scenarios_path.split("/")[-1]
 
     experiment_folder = os.path.join(
-        args.experiments_base_path,
+        args.save_experiment_base_path,
         args.model_config + f"_{dataset_name}" + f"_{timestamp}",
     )
 
@@ -262,7 +283,7 @@ def train(args):
     logging.basicConfig(
         filename=logger_filename,
         encoding="utf-8",
-        level=logging.INFO,
+        level=logging.DEBUG,
     )
     logger = logging.getLogger(timestamp)
 
@@ -270,17 +291,26 @@ def train(args):
         args, logger
     )
 
+    logger.info(f"Selected model: {args.model_config}")
+    logger.info(f"Selected optimizer: {args.optim_config}")
+    logger.info(f"Selected loss function: {args.loss_function}")
+
     logger.info("=" * 80)
     logger.info("Starting Model Training")
     logger.info("=" * 80)
 
-    model = args.model
-    optimizer = args.optimizer
-    loss_function = args.loss_function
+    args, model = model_configurations.select_model(args)
+    args, optimizer = optimizer_configurations.select_optimizer(
+        args, model.parameters()
+    )
+
+    if args.loss_function == "MSE":
+        loss_function = torch.nn.MSELoss()
 
     train_val_loss = defaultdict(list)
     for epoch in range(args.num_epochs):
         model, epoch_train_loss = train_one_epoch(
+            logger,
             model,
             optimizer,
             loss_function,
@@ -297,9 +327,9 @@ def train(args):
         print(
             f"\n\tTrain loss: {epoch_train_loss} | Val loss: {epoch_val_loss}"
         )
-        logger.info(
-            f"EPOCH {epoch + 1}/{args.num_epochs}: Train loss: {epoch_train_loss} | Val loss: {epoch_val_loss}"
-        )
+        # logger.info(
+        #     f"EPOCH {epoch + 1}/{args.num_epochs}: Train loss: {epoch_train_loss} | Val loss: {epoch_val_loss}"
+        # )
 
     logger.info("=" * 80)
     logger.info("Starting Model Testing")
@@ -317,7 +347,7 @@ def train(args):
     params = vars(args)
     with open(
         save_json_data_path,
-        "r",
+        "w",
     ) as jfile:
         json.dump(params, jfile, indent=4)
 
@@ -336,5 +366,4 @@ def train(args):
 
 if __name__ == "__main__":
     args = get_arguments()
-    model = select_model(args)
     train(args)

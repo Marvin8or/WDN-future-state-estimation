@@ -1,0 +1,31 @@
+{
+    "scenarios_path": "C:/Projects/Time Series Analysis/wdn-state-estim/src/gnn-pressure-forecasting/datasets/Net1_quantile_demand_DUMMY",
+    "num_train_scenarios": 100,
+    "num_validation_scenarios": 50,
+    "num_test_scenarios": 50,
+    "do_norm": true,
+    "norm_type": "znorm",
+    "model_config": "gcnconv_simple_16h",
+    "optim_config": "adam_lr001",
+    "loss_function": "MSE",
+    "batch_size": 1,
+    "keep_elements": [
+        "all"
+    ],
+    "input_data": "node",
+    "output_data": "node",
+    "input_node_features": [
+        "pressure"
+    ],
+    "output_node_features": [
+        "pressure"
+    ],
+    "input_edge_features": [
+        "flowrate"
+    ],
+    "output_edge_features": [
+        "flowrate"
+    ],
+    "num_epochs": 50,
+    "save_experiment_base_path": "experiments"
+}
